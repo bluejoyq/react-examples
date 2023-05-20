@@ -1,0 +1,12 @@
+{
+  "name": "pnpm-mono-repo",
+  "version": "1.0.0",
+  "description": "",
+  "packageManager": "pnpm@8.5.1",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
