@@ -1,19 +1,8 @@
-import {
-  ButtonHTMLAttributes,
-  ReactElement,
-  useCallback,
-  useState,
-} from 'react';
-
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
-const Button = (props: ButtonProps): ReactElement => {
-  return <button {...props} />;
-};
-
+import { ReactElement, useState } from 'react';
+import 'dayjs/plugin/customParseFormat';
 export const App = (): ReactElement => {
   const [state, setState] = useState(0);
   const handleClick = () => console.log(state);
-  const handleClickWithUseCallback = useCallback(() => console.log(state), []);
 
   return (
     <div>
@@ -23,8 +12,6 @@ export const App = (): ReactElement => {
         <h2>{state}</h2>
       </div>
       <div>
-        <Button onClick={handleClick}>Click Me</Button>
-        <Button onClick={handleClickWithUseCallback}>Click Me</Button>
         <button onClick={handleClick}>Click Me</button>
       </div>
     </div>
