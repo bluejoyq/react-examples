@@ -4,7 +4,7 @@ import {
   useInfiniteQuery,
 } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { ReactElement, useRef } from "react";
+import { ReactElement, useEffect, useRef } from "react";
 
 const DATA_LENGTH = 10;
 const sleep = async (ms: number): Promise<void> => {
@@ -51,21 +51,22 @@ export const Test = (): ReactElement => {
     maxPages: 5,
   });
   const parentRef = useRef<HTMLDivElement | null>(null);
-  const maxDataLength =
-    ((remoteData?.pageParams.slice(-1)[0] ?? 0) + 1) * DATA_LENGTH;
 
-  const rowVirtualizer = useVirtualizer({
-    count: maxDataLength,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 5 * DATA_LENGTH,
-  });
   const datas = {};
+  const maxPageIdx =
+    (remoteData?.pageParams.slice(-1)[0] ?? 0) * DATA_LENGTH + DATA_LENGTH;
   for (let i = 0; i < remoteData?.pages.length ?? 0; i += 1) {
     const pageOffset = remoteData?.pageParams[i];
     remoteData?.pages[i].forEach((val, index) => {
       datas[pageOffset * DATA_LENGTH + index] = val;
     });
   }
+
+  const rowVirtualizer = useVirtualizer({
+    count: maxPageIdx,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 5 * DATA_LENGTH,
+  });
   const handleScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>): void => {
     const scrollTop = e.currentTarget.scrollTop;
     const scrollHeight = e.currentTarget.scrollHeight;
@@ -73,7 +74,8 @@ export const Test = (): ReactElement => {
     const scrollPercent = 100 - (scrollHeight - clientHeight - scrollTop);
     const shouldFetchPrevious =
       scrollTop <
-      scrollHeight - (5 * scrollHeight) / (maxDataLength / DATA_LENGTH);
+      scrollHeight - (5 * scrollHeight) / (maxPageIdx / DATA_LENGTH);
+
     if (shouldFetchPrevious && hasPreviousPage && !isFetchingPreviousPage) {
       fetchPreviousPage();
     }
@@ -82,19 +84,32 @@ export const Test = (): ReactElement => {
     }
   };
 
+  useEffect(() => {
+    if (parentRef.current == null) {
+      return;
+    }
+    parentRef.current.height = "101%";
+  }, [parentRef]);
   return (
-    <>
+    <div
+      style={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+      }}
+    >
       <div
         ref={parentRef}
         style={{
-          height: `400px`,
+          flex: "1",
           overflow: "scroll",
         }}
         onScroll={handleScroll}
       >
         <div
           style={{
-            height: `${rowVirtualizer.getTotalSize()}px`,
+            // 항상 스크롤이 발생하도록 한다.
+            height: `max(${rowVirtualizer.getTotalSize()}px, 101%)`,
             width: "100%",
             position: "relative",
           }}
@@ -116,6 +131,6 @@ export const Test = (): ReactElement => {
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 };
