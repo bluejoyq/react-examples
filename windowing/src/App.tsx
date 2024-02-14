@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactElement } from "react";
+import { Test } from "./Test";
 
-function App() {
-  const [count, setCount] = useState(0);
-
+const queryClient = new QueryClient();
+export const App = (): ReactElement => {
   return (
-    <>
-      <div />
-    </>
+    <QueryClientProvider client={queryClient}>
+      <Test />
+    </QueryClientProvider>
   );
-}
-
-export default App;
+};
