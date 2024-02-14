@@ -84,12 +84,6 @@ export const Test = (): ReactElement => {
     }
   };
 
-  useEffect(() => {
-    if (parentRef.current == null) {
-      return;
-    }
-    parentRef.current.height = "101%";
-  }, [parentRef]);
   return (
     <div
       style={{
