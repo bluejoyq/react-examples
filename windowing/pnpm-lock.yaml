@@ -1,9 +1,15 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@tanstack/query-sync-storage-persister':
+    specifier: ^5.28.0
+    version: 5.28.0
   '@tanstack/react-query':
     specifier: ^5.20.5
     version: 5.20.5(react@18.2.0)
+  '@tanstack/react-query-persist-client':
+    specifier: ^5.28.0
+    version: 5.28.0(@tanstack/react-query@5.20.5)(react@18.2.0)
   '@tanstack/react-virtual':
     specifier: ^3.0.4
     version: 3.0.4(react-dom@18.2.0)(react@18.2.0)
@@ -712,6 +718,34 @@ packages:
 
   /@tanstack/query-core@5.20.5:
     resolution: {integrity: sha512-T1W28gGgWn0A++tH3lxj3ZuUVZZorsiKcv+R50RwmPYz62YoDEkG4/aXHZELGkRp4DfrW07dyq2K5dvJ4Wl1aA==}
+    dev: false
+
+  /@tanstack/query-core@5.28.0:
+    resolution: {integrity: sha512-BfltXqnoIAXTCFrQCu40M3Ch7odQ6IJraTy0t8n12jAwXMYKIgDwOBWTqkSUYD+vxMi8Ag0+9F8lw9wZKhi2Yg==}
+    dev: false
+
+  /@tanstack/query-persist-client-core@5.28.0:
+    resolution: {integrity: sha512-hMiK9ciWCAtlHjRzu29TeuEdP91RlPy9YQk+3AH8Kjvc4JLREkRdzexy2jatQiaTOIJUH8SL+04FoU+nAaRW+A==}
+    dependencies:
+      '@tanstack/query-core': 5.28.0
+    dev: false
+
+  /@tanstack/query-sync-storage-persister@5.28.0:
+    resolution: {integrity: sha512-tx5Y+K3VHeBoPMqSpsivSDJ22EwCLpQJLeLW01AppWDrYm1aglovCsXWSYtxV5xgsnTtRCbte/c+FZbc/+0Xnw==}
+    dependencies:
+      '@tanstack/query-core': 5.28.0
+      '@tanstack/query-persist-client-core': 5.28.0
+    dev: false
+
+  /@tanstack/react-query-persist-client@5.28.0(@tanstack/react-query@5.20.5)(react@18.2.0):
+    resolution: {integrity: sha512-g5sa4HAmrY1fvNrR6jPwtT62YPCPcroSDr0HEr2pDnBj28vC51KH2zWXp/FB1faQ9IATrbURLnfEDX9kew8qEA==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.28.0
+      react: ^18.0.0
+    dependencies:
+      '@tanstack/query-persist-client-core': 5.28.0
+      '@tanstack/react-query': 5.20.5(react@18.2.0)
+      react: 18.2.0
     dev: false
 
   /@tanstack/react-query@5.20.5(react@18.2.0):

@@ -1,12 +1,25 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { ReactElement } from "react";
 import { Test } from "./Test";
-
-const queryClient = new QueryClient();
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours
+    },
+  },
+});
+const localStoragePersister = createSyncStoragePersister({
+  storage: window.localStorage,
+});
 export const App = (): ReactElement => {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister: localStoragePersister }}
+    >
       <Test />
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 };
