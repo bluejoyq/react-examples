@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 import { useLoadInfiniteData } from "./useLoadInfiniteData";
-import { useSentryFetch } from "./useSentryFetch";
+import { useScrollFetch } from "./useScrollFetch";
 
 const PAGE_SIZE = 10;
 
@@ -11,11 +11,14 @@ export const Test = (): ReactElement => {
     isFetchingNextPage,
     fetchNextPage,
   } = useLoadInfiniteData(PAGE_SIZE);
-  const datas = remoteData?.pages.flatMap((page) => page) ?? [];
-  const { sentryRefCallback } = useSentryFetch({ fetchNextPage });
+  const pages = remoteData?.pages ?? [];
 
   const isLoadable = hasNextPage && !isFetchingNextPage;
-  const isRef = (idx: number) => idx == datas.length - PAGE_SIZE && isLoadable;
+
+  useScrollFetch({
+    fetchNextPage,
+    isLoadable,
+  });
   return (
     <div
       style={{
@@ -24,24 +27,27 @@ export const Test = (): ReactElement => {
         flexDirection: "column",
       }}
     >
-      {datas.map((data, idx) => (
-        <div
-          key={data.id}
-          ref={isRef(idx) ? sentryRefCallback : null}
-          style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            border: "1px solid black",
-            padding: "10px",
-          }}
-        >
-          <img
-            src={data.src}
-            alt={data.title}
-            style={{ width: "100%", height: "auto" }}
-          />
-          <span>{data.title}</span>
+      {pages.map((page, idx) => (
+        <div key={`page-${idx}`}>
+          {page.map((data) => (
+            <div
+              key={data.id}
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                border: "1px solid black",
+                padding: "10px",
+              }}
+            >
+              <img
+                src={data.src}
+                alt={data.title}
+                style={{ width: "100%", height: "auto" }}
+              />
+              <span>{data.title}</span>
+            </div>
+          ))}
         </div>
       ))}
       {isLoadable && (
