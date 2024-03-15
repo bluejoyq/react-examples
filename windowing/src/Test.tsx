@@ -13,6 +13,9 @@ export const Test = (): ReactElement => {
   } = useLoadInfiniteData(PAGE_SIZE);
   const datas = remoteData?.pages.flatMap((page) => page) ?? [];
   const { sentryRefCallback } = useSentryFetch({ fetchNextPage });
+
+  const isLoadable = hasNextPage && !isFetchingNextPage;
+  const isRef = (idx: number) => idx == datas.length - PAGE_SIZE && isLoadable;
   return (
     <div
       style={{
@@ -21,9 +24,10 @@ export const Test = (): ReactElement => {
         flexDirection: "column",
       }}
     >
-      {datas.map((data) => (
+      {datas.map((data, idx) => (
         <div
           key={data.id}
+          ref={isRef(idx) ? sentryRefCallback : null}
           style={{
             width: "100%",
             display: "flex",
@@ -40,17 +44,16 @@ export const Test = (): ReactElement => {
           <span>{data.title}</span>
         </div>
       ))}
-
-      <div
-        ref={sentryRefCallback}
-        style={{
-          width: "100%",
-          backgroundColor: "red",
-          visibility: hasNextPage && !isFetchingNextPage ? "visible" : "hidden",
-        }}
-      >
-        ...loading
-      </div>
+      {isLoadable && (
+        <div
+          style={{
+            width: "100%",
+            backgroundColor: "red",
+          }}
+        >
+          ...loading
+        </div>
+      )}
     </div>
   );
 };
