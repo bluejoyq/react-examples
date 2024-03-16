@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 import { useLoadInfiniteData } from "./useLoadInfiniteData";
-import { useScrollFetch } from "./useScrollFetch";
+import { useSentryFetch } from "./useSentryFetch";
 
 const PAGE_SIZE = 10;
 
@@ -14,10 +14,9 @@ export const Test = (): ReactElement => {
   const pages = remoteData?.pages ?? [];
 
   const isLoadable = hasNextPage && !isFetchingNextPage;
-
-  useScrollFetch({
+  const isRef = (idx: number) => idx === pages.length - 1 && isLoadable;
+  const { sentryRefCallback } = useSentryFetch({
     fetchNextPage,
-    isLoadable,
   });
   return (
     <div
@@ -28,7 +27,7 @@ export const Test = (): ReactElement => {
       }}
     >
       {pages.map((page, idx) => (
-        <div key={`page-${idx}`}>
+        <div key={`page-${idx}`} ref={isRef(idx) ? sentryRefCallback : null}>
           {page.map((data) => (
             <div
               key={data.id}
@@ -43,7 +42,8 @@ export const Test = (): ReactElement => {
               <img
                 src={data.src}
                 alt={data.title}
-                style={{ width: "100%", height: "auto" }}
+                style={{ width: "100%", height: "auto", aspectRatio: "1" }}
+                loading="lazy"
               />
               <span>{data.title}</span>
             </div>

@@ -21,11 +21,15 @@ const getSomeData = async (
   dataSize: number,
 ): Promise<DummyData[]> => {
   await sleep(100);
-  return new Array(dataSize).fill(0).map((_, offset) => ({
-    title: `${startIdx * dataSize + offset + 1}번째 데이터`,
-    id: startIdx * dataSize + offset,
-    src: `${(offset % 5) + 1}.jpeg`,
-  }));
+
+  return new Array(dataSize).fill(0).map((_, offset) => {
+    const id = startIdx * dataSize + offset;
+    return {
+      title: `${id + 1}번째 데이터`,
+      id: id,
+      src: `https://picsum.photos/seed/${id}/1000`,
+    };
+  });
 };
 
 export const useLoadInfiniteData = (pageSize: number) => {
