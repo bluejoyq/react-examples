@@ -24,10 +24,17 @@ const getSomeData = async (
 
   return new Array(dataSize).fill(0).map((_, offset) => {
     const id = startIdx * dataSize + offset;
+    if (id % 2 == 0) {
+      return {
+        title: `${id + 1}번째 데이터`,
+        id: id,
+        src: `https://picsum.photos/seed/${id}/400/600`,
+      };
+    }
     return {
       title: `${id + 1}번째 데이터`,
       id: id,
-      src: `https://picsum.photos/seed/${id}/1000`,
+      src: `https://picsum.photos/seed/${id}/600`,
     };
   });
 };
