@@ -68,6 +68,7 @@ export const useScrollVirtualizer = <T>({
   const handleResize = useCallback(() => {
     const newVirtualSize = computeVirtualSize();
     virtualSize.current = newVirtualSize;
+
     handleScroll();
   }, [handleScroll, computeVirtualSize]);
   useEffect(() => {
@@ -101,6 +102,7 @@ export const useScrollVirtualizer = <T>({
     };
   }, [handleScroll, scrollElement]);
 
+  const pixelHeight = computePixelHeight();
   const virtualContents = contents
     .slice(virtualPos.start, virtualPos.end)
     .map((data, index) => {
@@ -108,12 +110,12 @@ export const useScrollVirtualizer = <T>({
       return {
         virtualIndex: index + virtualPos.start,
         data,
-        top: `calc(${contentHeight} * ${virtualIndex})`,
+        top: `calc(${pixelHeight}px * ${virtualIndex})`,
       };
     });
 
   return {
     virtualContents,
-    containerHeight: `calc(${contentHeight} * ${contentLength})`,
+    containerHeight: `calc(${pixelHeight}px * ${contentLength})`,
   };
 };
