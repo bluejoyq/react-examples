@@ -1,11 +1,9 @@
-import { ReactElement, useEffect, useRef, useState } from "react";
+import { ReactElement } from "react";
 import { useLoadInfiniteData } from "./useLoadInfiniteData";
+import { useScrollVirtualizer } from "./useScrollVirtualizer";
 
 const PAGE_SIZE = 10000;
-interface VirtualItem<T> {
-  virtualIndex: number;
-  data: T;
-}
+
 export const Test = (): ReactElement => {
   const {
     data: remoteData,
@@ -14,79 +12,23 @@ export const Test = (): ReactElement => {
   } = useLoadInfiniteData(PAGE_SIZE);
 
   const contents = (remoteData?.pages ?? []).flat();
-  const contentLength = contents.length;
   const isLoadable = hasNextPage && !isFetchingNextPage;
   const contentHeight = `calc(50vw + 19.5px)`;
-
-  const virtualSize = 30;
-  const [virtualPos, setVirtualPos] = useState({
-    start: 0,
-    end: virtualSize,
+  const { virtualContents, containerHeight } = useScrollVirtualizer({
+    contents,
+    contentHeight,
   });
-
-  const observer = useRef<IntersectionObserver>(
-    new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (entry.isIntersecting) {
-        return;
-      }
-
-      const isScrollDown = entry.boundingClientRect.top < 0;
-      unobserve(entry.target);
-      if (isScrollDown) {
-        const target = entry.target as HTMLDivElement;
-        const virtualIndex = Number(target.dataset.virtualIndex);
-        setVirtualPos({
-          start: virtualIndex + 1,
-          end: virtualIndex + virtualSize + 1,
-        });
-      } else {
-        const target = entries.slice(-1)[0].target as HTMLDivElement;
-        const virtualIndex = Number(target.dataset.virtualIndex);
-        setVirtualPos({
-          start: Math.max(0, virtualIndex - virtualSize - 1),
-          end: Math.max(virtualSize, virtualIndex - 1),
-        });
-      }
-    }),
-  );
-
-  const observe = (node: Element) => {
-    observer.current.observe(node);
-  };
-
-  const unobserve = (node: Element) => {
-    observer.current.unobserve(node);
-  };
-
-  const unobserveAll = () => {
-    observer.current.disconnect();
-  };
-
-  const virtualContents = contents
-    .slice(virtualPos.start, virtualPos.end)
-    .map((data, index) => ({
-      virtualIndex: index + virtualPos.start,
-      data,
-      ref: (node: HTMLDivElement | null) => {
-        if (node == null) {
-          return;
-        }
-        observe(node);
-      },
-    }));
-  unobserveAll();
   return (
     <div
       style={{
         width: "50vw",
         display: "flex",
         flexDirection: "column",
-        height: `calc(${contentHeight} * ${contentLength})`,
+        height: containerHeight,
         position: "relative",
       }}
     >
-      {virtualContents.map(({ data, virtualIndex, ref }) => (
+      {virtualContents.map(({ data, top }) => (
         <div
           key={data.id}
           style={{
@@ -96,10 +38,8 @@ export const Test = (): ReactElement => {
             border: "1px solid black",
             padding: "10px",
             position: "absolute",
-            top: `calc(${contentHeight} * ${virtualIndex})`,
+            top: top,
           }}
-          ref={ref}
-          data-virtual-index={virtualIndex}
         >
           <img
             src={data.src}
