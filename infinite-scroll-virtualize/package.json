@@ -1,5 +1,5 @@
 {
-  "name": "windowing",
+  "name": "infinite-scroll-virtualize",
   "private": true,
   "version": "0.0.0",
   "type": "module",
