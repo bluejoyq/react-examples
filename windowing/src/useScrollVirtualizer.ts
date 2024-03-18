@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 interface VirtualItem<T> {
   virtualIndex: number;
   data: T;
-  top: string;
+  ref: (instance: HTMLElement | null) => void;
+  minHeight?: number;
 }
 interface ScrollVirtualizerParams<T> {
   contents: T[];
@@ -15,6 +16,7 @@ interface ScrollVirtualizerParams<T> {
 interface ScrollVirtualizerReturns<T> {
   virtualContents: VirtualItem<T>[];
   containerHeight: string;
+  top: string;
 }
 export const useScrollVirtualizer = <T>({
   contents,
@@ -23,6 +25,7 @@ export const useScrollVirtualizer = <T>({
   scrollElement = window.document.documentElement,
 }: ScrollVirtualizerParams<T>): ScrollVirtualizerReturns<T> => {
   const contentLength = contents.length;
+  const realContentHeightMap = useRef(new Map<number, number>());
   /**
    * @description string 높이를 계산하여 pixel로 반환
    */
@@ -43,11 +46,9 @@ export const useScrollVirtualizer = <T>({
     if (scrollElement == null) {
       return 0;
     }
-    return (
-      Math.ceil(scrollElement.clientHeight / computePixelHeight()) + overscan
-    );
-  }, [computePixelHeight, overscan, scrollElement]);
-  const virtualSize = useRef(computeVirtualSize());
+    return Math.ceil(scrollElement.clientHeight / computePixelHeight());
+  }, [computePixelHeight, scrollElement]);
+  const virtualSize = useRef(computeVirtualSize() + overscan);
   const [virtualPos, setVirtualPos] = useState({
     start: 0,
     end: virtualSize.current,
@@ -57,13 +58,21 @@ export const useScrollVirtualizer = <T>({
     if (scrollElement == null) {
       return;
     }
-    const scrollTop = -scrollElement.getBoundingClientRect().top;
-
-    const virtualIndex = Math.floor(scrollTop / computePixelHeight());
-    const start = Math.max(0, virtualIndex);
-    const end = Math.min(contentLength, virtualIndex + virtualSize.current);
+    let scrollTop = -scrollElement.getBoundingClientRect().top;
+    const pixelHeight = computePixelHeight();
+    let virtualIndex = 0;
+    while (scrollTop > 0) {
+      scrollTop -=
+        realContentHeightMap.current.get(virtualIndex) ?? pixelHeight;
+      virtualIndex += 1;
+    }
+    const start = Math.max(0, virtualIndex - overscan);
+    const end = Math.min(
+      contentLength,
+      virtualIndex + virtualSize.current + overscan,
+    );
     setVirtualPos({ start, end });
-  }, [contentLength, scrollElement, computePixelHeight]);
+  }, [contentLength, scrollElement, computePixelHeight, overscan]);
 
   const handleResize = useCallback(() => {
     const newVirtualSize = computeVirtualSize();
@@ -108,14 +117,30 @@ export const useScrollVirtualizer = <T>({
     .map((data, index) => {
       const virtualIndex = index + virtualPos.start;
       return {
-        virtualIndex: index + virtualPos.start,
+        virtualIndex,
         data,
-        top: `calc(${pixelHeight}px * ${virtualIndex})`,
+        minHeight: realContentHeightMap.current.get(virtualIndex),
+        ref: (instance: HTMLElement | null) => {
+          if (instance == null) {
+            return;
+          }
+          realContentHeightMap.current.set(virtualIndex, instance.clientHeight);
+        },
       };
     });
 
+  let top = 0;
+  let containerHeight = 0;
+  for (let i = 0; i < contentLength; i++) {
+    containerHeight += realContentHeightMap.current.get(i) ?? pixelHeight;
+  }
+  for (let i = 0; i < virtualPos.start; i++) {
+    top += realContentHeightMap.current.get(i) ?? pixelHeight;
+  }
+
   return {
     virtualContents,
-    containerHeight: `calc(${pixelHeight}px * ${contentLength})`,
+    containerHeight: `${containerHeight}px`,
+    top: `${top}px`,
   };
 };

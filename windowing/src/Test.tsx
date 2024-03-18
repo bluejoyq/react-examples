@@ -2,7 +2,7 @@ import { ReactElement } from "react";
 import { useLoadInfiniteData } from "./useLoadInfiniteData";
 import { useScrollVirtualizer } from "./useScrollVirtualizer";
 
-const PAGE_SIZE = 10000;
+const PAGE_SIZE = 1000;
 
 export const Test = (): ReactElement => {
   const {
@@ -14,7 +14,7 @@ export const Test = (): ReactElement => {
   const contents = (remoteData?.pages ?? []).flat();
   const isLoadable = hasNextPage && !isFetchingNextPage;
   const contentHeight = `calc(50vw + 19.5px)`;
-  const { virtualContents, containerHeight } = useScrollVirtualizer({
+  const { virtualContents, containerHeight, top } = useScrollVirtualizer({
     contents,
     contentHeight,
   });
@@ -28,28 +28,35 @@ export const Test = (): ReactElement => {
         position: "relative",
       }}
     >
-      {virtualContents.map(({ data, top }) => (
-        <div
-          key={data.id}
-          style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            border: "1px solid black",
-            padding: "10px",
-            position: "absolute",
-            top: top,
-          }}
-        >
-          <img
-            src={data.src}
-            alt={data.title}
-            style={{ width: "100%", height: "auto", aspectRatio: "1" }}
-            loading="lazy"
-          />
-          <span>{data.title}</span>
-        </div>
-      ))}
+      <div
+        style={{
+          position: "absolute",
+          top: top,
+        }}
+      >
+        {virtualContents.map(({ data, ref, minHeight }) => (
+          <div
+            key={data.id}
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              border: "1px solid black",
+              padding: "10px",
+              minHeight: minHeight,
+            }}
+            ref={ref}
+          >
+            <img
+              src={data.src}
+              alt={data.title}
+              style={{ width: "100%", height: "auto" }}
+              loading="lazy"
+            />
+            <span>{data.title}</span>
+          </div>
+        ))}
+      </div>
       {isLoadable && (
         <div
           style={{
