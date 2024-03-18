@@ -1,12 +1,15 @@
+import { ForwardedRef, forwardRef } from "react";
 import { DummyData } from "./useLoadInfiniteData";
 
 export interface ContentProps {
   data: DummyData;
-  ref: (instance: HTMLElement | null) => void;
   minHeight?: number;
 }
 
-export const Content = ({ data, ref, minHeight }: ContentProps) => {
+const ContentComponent = (
+  { data, minHeight }: ContentProps,
+  ref: ForwardedRef<HTMLDivElement>,
+) => {
   return (
     <div
       style={{
@@ -29,3 +32,7 @@ export const Content = ({ data, ref, minHeight }: ContentProps) => {
     </div>
   );
 };
+
+export const Content = forwardRef<HTMLDivElement, ContentProps>(
+  ContentComponent,
+);
