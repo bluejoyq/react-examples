@@ -16,10 +16,12 @@ export const useSentryFetch = ({ fetchNextPage }: UseSentryFetchParams) => {
       },
     ),
   );
-  const [sentryRef, setSentryRef] = useState<HTMLDivElement | null>(null);
+  const [sentryElement, setSentryElement] = useState<HTMLDivElement | null>(
+    null,
+  );
   const sentryRefCallback = (node: HTMLDivElement | null) => {
-    unobserve(sentryRef);
-    setSentryRef(node);
+    unobserve(sentryElement);
+    setSentryElement(node);
     observe(node);
   };
 
